@@ -22,23 +22,28 @@ struct ContentView: View {
             
             HStack {
                 Button(action: {
-                    emojiCount -= 1
+                    if emojiCount > 1 {
+                        emojiCount -= 1
+                    }
                 }, label: {
-                    Text("Remove card")
+                    Image(systemName: "minus.circle")
                 })
                 
                 Spacer()
                 
                 Button(action: {
-                    emojiCount += 1
+                    if emojiCount < emojis.count{
+                        emojiCount += 1
+                    }
                 }, label: {
-                    Text("Add card")
+                    Image(systemName: "plus.circle")
                 })
             }
         }
         .padding()
         .foregroundStyle(.orange)
     }
+    
 }
 
 struct CardView: View {
@@ -56,9 +61,9 @@ struct CardView: View {
                 shape
             }
         }
-            .onTapGesture {
-                isFaceUP = !isFaceUP
-            }
+        .onTapGesture {
+            isFaceUP = !isFaceUP
+        }
     }
 }
 
