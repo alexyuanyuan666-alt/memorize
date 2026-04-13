@@ -7,15 +7,29 @@
 
 import Foundation
 
-func createCardContent(index:Int) -> String {
-    return "A"
-}
-
+@Observable
 class EmojiMemoryGame {
-    private var model: MemoryGame<String> = MemoryGame<String>(numberOfPairsOfCards: 4,
-    createCardContent: createCardContent)
+    
+    private static var emojis = ["🐭" ,"🐮", "🐯", "🐰", "🐲", "🐍", "🐴", "🐏", "🐵", "🐔", "🐶", "🐷", "🐱", "🦊", "🐧", "🐸", "🐻", "🐤","🦆", "🐹", "🐨", "🐦‍⬛", "🦅","🐺", "🪿", "✈️"]
+    
+    private static func createMemoryGame() -> MemoryGame<String> {
+        MemoryGame<String>(numberOfPairsOfCards: 4, createCardContent: {index in EmojiMemoryGame.emojis[index] })
+        
+    }
+    
+    
+    
+    private var model: MemoryGame<String> = createMemoryGame()
     
     var cards: [MemoryGame<String>.Card] {
         model.cards
+    }
+    
+    func choose(_ card: MemoryGame<String>.Card){
+        model.choose(card)
+    }
+    
+    func shuffle() {
+        model.shuffle()
     }
 }

@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
-    var emojis = ["A" ,"B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R","S", "T", "U", "V", "W","X", "Y", "Z"]
-    
-    @State var emojiCount = 6
+    var viewModel: EmojiMemoryGame
     
     var body: some View{
         VStack{
             cardList
+                .animation(.default, value: viewModel.cards)
             Spacer()
-            actionButtons
+            Button("Shuffle") {
+                viewModel.shuffle()
             }
+            .font(.largeTitle)
+        }
         .padding()
         .foregroundStyle(.orange)
     }
@@ -25,71 +27,43 @@ struct ContentView: View {
     var cardList: some View{
         ScrollView{
             LazyVGrid(columns: [GridItem( .adaptive(minimum: 85), spacing: 0)], spacing: 0){
-                ForEach(emojis[0..<emojiCount], id: \.self){ emojis in
-                    CardView(content: emojis)
+                ForEach(viewModel.cards) { card in
+                    CardView(card: card)
                         .aspectRatio(2/3, contentMode: .fit)
                         .padding(4)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                        }
                 }
             }
         }
     }
-    
-    var actionButtons: some View {
-        HStack {
-            remove
-            Spacer()
-            add
-        }
-        .font(.largeTitle)
-    }
-
-    var remove: some View{
-        Button{
-            if emojiCount > 1 {
-                emojiCount -= 1
-            }
-        } label: {
-            Image(systemName: "minus.circle")
-        }
-    }
-    
-    var add: some View{
-        Button{
-            if emojiCount > 1 {
-                emojiCount += 1
-            }
-        } label: {
-            Image(systemName: "plus.circle")
-        }
-    }
-    
 }
+   
 
 struct CardView: View {
-    @State var isFaceUP: Bool = true
-    var content:String
+    var card: MemoryGame<String>.Card
+    
     var body: some View{
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
             Group {
                     shape.fill(.white)
                     shape.strokeBorder(lineWidth: 3)
-                    Text(content)
+                Text(card.content)
                         .font(Font.system(size: 300))
                         .minimumScaleFactor(0.01)
                         .aspectRatio(1,contentMode: .fit)
                 }
-                .opacity(isFaceUP ? 1 : 0)
+            .opacity(card.isFaceUp ? 1 : 0)
             
-                shape.opacity(isFaceUP ? 0 : 1)
+            shape.opacity(card.isFaceUp ? 0 : 1)
             
         }
-        .onTapGesture {
-            isFaceUP = !isFaceUP
-        }
+        .opacity(card.isMatched && !card.isFaceUp ? 0 : 1)
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: EmojiMemoryGame())
 }
