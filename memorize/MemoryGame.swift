@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MemoryGame<CardContent> where CardContent: Equatable{
+struct MemoryGame<CardContent> where CardContent: Equatable {
     var cards: [Card]
     
     init(numberOfPairsOfCards: Int,
@@ -21,50 +21,55 @@ struct MemoryGame<CardContent> where CardContent: Equatable{
         shuffle()
     }
     
-    var lastFaceUpIndex: Int?
-    mutating func choose(_ card: Card){
-        if let chosenIndex = index(of: card){
-            if let lastIndex = lastFaceUpIndex{
-            if cards[lastIndex].content ==
-                cards[chosenIndex].content {
-                cards[lastIndex].isMatched = true
-                cards[chosenIndex].isMatched = true
-            }
-            lastFaceUpIndex = nil
-        } else {
-            for i in 0..<cards.count {
-                cards[i].isFaceUp = false
-            }
-            lastFaceUpIndex = chosenIndex
-        }
-        cards[chosenIndex].isFaceUp.toggle()
-    }
-    print("cards: \(cards)")
-}
-    
-    func index(of card: Card) -> Int? {
-        for i in 0..<cards.count {
-            if cards[i].id == card.id {
-                return i
-            }
-        }
-        return nil
+    var lastFaceUpIndex: Int? {
+        get { cards.indices.filter( { cards[$0].isFaceUp } ).oneAndOnly }
+        set { cards.indices.forEach({ cards[$0].isFaceUp = $0 == newValue }) }
     }
     
-    mutating func shuffle(){
+    mutating func choose(_ card: Card) {
+        
+        if let chosenIndex = cards.indices.first(where: { cards[$0].id == card.id }) {
+            if cards[chosenIndex].isFaceUp || cards[chosenIndex].isMatched {
+                    return
+            }
+            
+            if let lastIndex = lastFaceUpIndex {
+                if cards[lastIndex].content == cards[chosenIndex].content {
+                    cards[lastIndex].isMatched = true
+                    cards[chosenIndex].isMatched = true
+                }
+                cards[chosenIndex].isFaceUp = true
+                
+            } else {
+                lastFaceUpIndex = chosenIndex
+            }
+            
+        }
+        print("cards: \(cards)")
+    }
+    
+    
+    mutating func shuffle() {
         cards.shuffle()
-        print("shuffle card:)\(cards)")
+        print("shuffle cards: \(cards)")
     }
     
     struct Card: Equatable, Identifiable {
-        static func == (lhs: MemoryGame<CardContent>.Card,rhs:MemoryGame<CardContent>.Card) -> Bool {
+        static func == (lhs: MemoryGame<CardContent>.Card, rhs: MemoryGame<CardContent>.Card) -> Bool {
             lhs.content == rhs.content && lhs.isFaceUp == rhs.isFaceUp && lhs.isMatched == rhs.isMatched && lhs.id == rhs.id
         }
         
         var isFaceUp: Bool = false
         var isMatched: Bool = false
-        var content : CardContent
+        var content: CardContent
         
         var id: String
+    }
+}
+
+
+extension Array {
+    var oneAndOnly: Element? {
+        return count == 1 ? first : nil
     }
 }
